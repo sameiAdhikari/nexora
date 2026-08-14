@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import Divider from "@/components/auth/signup/Divider";
+import Divider from "@/components/common/Divider";
 import { SpinnerCircle, SpinnerLoader } from "@/components/common/spinner";
 import { ThemeToggler } from "@/components/common/ThemeToggler";
 import { appName } from "@/const/constant";

@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Eye, EyeOff, LockKeyhole, ShieldCheck, User } from "lucide-react";
 
 import authClient from "@/lib/auth-client";
-import Divider from "@/components/auth/signup/Divider";
+import Divider from "@/components/common/Divider";
 import InputField from "@/components/auth/signup/InputField";
 import { SpinnerCircle } from "@/components/common/spinner";
 import PasswordStrengthBar from "@/components/auth/signup/PasswordStrengthBar";
