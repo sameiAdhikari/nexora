@@ -1,6 +1,8 @@
+import StoreProvider from "@/components/common/StoreProvider";
+import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
-import "./globals.css";
+import { Bounce, ToastContainer } from "react-toastify";
 
 const interTight = Inter_Tight({
   variable: "--font-inter-tight",
@@ -23,9 +25,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${interTight.variable} dark  h-full antialiased`}
+      className={`${inter.variable} ${interTight.variable}  h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-text-primary">
+        <StoreProvider>{children}</StoreProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          transition={Bounce}
+        />
+      </body>
     </html>
   );
 }
