@@ -1,4 +1,5 @@
 "use client";
+
 import { ArrowLeft, Home, MailCheck, ShieldUser } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,26 +9,29 @@ import { useEffect, useState } from "react";
 import Divider from "@/components/common/Divider";
 import { SpinnerCircle, SpinnerLoader } from "@/components/common/spinner";
 import { ThemeToggler } from "@/components/common/ThemeToggler";
-import { appName } from "@/const/constant";
-import { resendVerificationEmail } from "@/lib/actions";
+import { appName, resendEmailTimerInSecond } from "@/const/constant";
+import { findOutExistingUser, resendVerificationEmail } from "@/lib/actions";
 import { formateHideEmail } from "@/lib/utils";
 import { toast } from "react-toastify";
 
 const VerifyEmail = () => {
   const router = useRouter();
   const [isVerified, setIsVerified] = useState(false);
-  const [resendTimer, setResendTimer] = useState(120);
+  const [resendTimer, setResendTimer] = useState(resendEmailTimerInSecond);
   const [isResending, setIsResending] = useState(false);
   const searchParams = useSearchParams();
   const userEmail = searchParams.get("email") || "";
+  const canPoll = resendTimer > 0;
 
+  // redirect user to signup page if there is no userEmail. means if use visit email-verify email through url without email address
   useEffect(() => {
     if (!userEmail) router.push("/auth/signup");
   }, [router, userEmail]);
 
+  // this function is use to tract the timer and update it every second
   useEffect(() => {
     const timer = setInterval(() => {
-      if (resendTimer <= 0) return;
+      if (resendTimer <= 0) return clearInterval(timer);
       setResendTimer((prev) => {
         if (prev > 1) {
           return prev - 1;
@@ -40,15 +44,37 @@ const VerifyEmail = () => {
     return () => clearInterval(timer);
   }, [resendTimer]);
 
+  //  every five second this send a query to the database and find out if the use is already verified or not
+  useEffect(() => {
+    if (!userEmail || !canPoll || isVerified) return;
+    let alive = true;
+    const check = async () => {
+      const response = await findOutExistingUser(userEmail);
+
+      if (!alive) return;
+
+      if (response?.message === "EMAIL_IS_VERIFIED") {
+        setIsVerified(true);
+        alive = false;
+        clearInterval(findExistingUserInTheDatabase);
+      }
+    };
+
+    check();
+
+    const findExistingUserInTheDatabase = setInterval(check, 5000);
+
+    return () => {
+      alive = false;
+      clearInterval(findExistingUserInTheDatabase);
+    };
+  }, [userEmail, canPoll, isVerified]);
+
   const handleResendVerificationEmail = async () => {
     if (resendTimer > 0 || isResending) return;
     setIsResending(true);
     try {
       const response = await resendVerificationEmail(userEmail);
-      if (response.message === "EMAIL_IS_VERIFIED") {
-        setIsVerified(true);
-        return toast.info("Email is already verified.");
-      }
       if (response.message === "EMAIL_IS_REQUIRED")
         return toast.error("Email is required.");
 
@@ -58,16 +84,22 @@ const VerifyEmail = () => {
       if (response.message === "USER_EMAIL_NOT_AVAILABLE")
         return toast.error("Failed to send verification email.");
 
+      if (response.message === "EMAIL_IS_VERIFIED") {
+        setIsVerified(true);
+        return toast.info("Email is already verified.");
+      }
+
       toast.success("Verification email sent successfully.");
+      setResendTimer(resendEmailTimerInSecond);
       // eslint-disable-next-line
     } catch (error) {
       toast.error("Failed to send verification email.");
     } finally {
       setIsResending(false);
-      setResendTimer(120);
     }
   };
 
+  // this loads a loader to the screen when it take to function the calculation to avoid short flash of this page before redirect to the signup page through useEffect function.
   if (userEmail === "" || userEmail === null || userEmail === undefined)
     return (
       <div className="w-screen h-screen flex items-center justify-center">
@@ -96,7 +128,7 @@ const VerifyEmail = () => {
 
       {/* Main */}
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-9">
-        <div className="w-full max-w-113 space-y-6">
+        <div className="w-full max-w-108 space-y-6">
           {/* Card */}
           <div className="bg-surface border border-border-default rounded-2xl shadow-lg overflow-hidden">
             {/* Top accent bar */}
@@ -124,7 +156,7 @@ const VerifyEmail = () => {
                   <span className="block text-xl text-primary font-bold -mt-1 mb-2">
                     {formateHideEmail(userEmail)}
                   </span>{" "}
-                  <span className="inline-block">
+                  <span className="inline-block px-1">
                     Click the link in the email to verify {appName} account. The
                     link will expired in 1 hours.
                   </span>
@@ -135,9 +167,9 @@ const VerifyEmail = () => {
               {isVerified ? (
                 <div className="w-full rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 flex items-center gap-3">
                   <MailCheck className="h-5 w-5 text-green-500 shrink-0" />
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium text-left">
-                    Your email is verified. You can now sign in or go to the
-                    home page.
+                  <p className="text-[13px] text-green-600 dark:text-green-400 font-medium text-left">
+                    If your email was verified successfully, You can now signin
+                    or return to home page.
                   </p>
                 </div>
               ) : (
@@ -169,7 +201,7 @@ const VerifyEmail = () => {
                       type="button"
                       disabled={isResending}
                       onClick={handleResendVerificationEmail}
-                      className="w-full mt-2 py-2.5 rounded-xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold text-sm transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-center gap-2 mt-2 py-2.5 rounded-xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold text-sm transition-colors cursor-pointer"
                     >
                       {isResending && <SpinnerCircle />}
                       {!isResending
@@ -180,7 +212,7 @@ const VerifyEmail = () => {
                 </div>
               )}
 
-              <Divider>OR</Divider>
+              {!isVerified && resendTimer < 1 && <Divider>OR</Divider>}
 
               {/* Navigation links */}
               <div className="flex w-full gap-3">

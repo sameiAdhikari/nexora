@@ -54,14 +54,24 @@ const SignUpForm = () => {
         callbackURL: "/auth/signin", // Specify the callback URL after email verification
       });
       if (error) {
+        // this is not going to work because better auth doesn't return an error for existing user.
+        // if (error?.message?.includes("already exists")) {
+        //   setIsLoading(false);
+        //   return toast.error(
+        //     "If an account can be created with this email, it's processed. Please login.",
+        //   );
+        // }
+
         toast.error(error.message || "An error occurred during signup.");
         setIsLoading(false);
         return;
       }
       // encodeURIComponent() is a function that takes a value and convet it into valid url. because in url there is some character which has special meaning so it'n use as a string.this function will replace it with %number example.Space → %20 &, → %26, = → %3D ,? → %3F, # → %23, % → %25
+
       router.push(
         `/auth/verify-email?email=${encodeURIComponent(returnUser.user.email)}`,
       );
+      setIsLoading(false);
       //eslint-disable-next-line
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
@@ -86,6 +96,12 @@ const SignUpForm = () => {
           {/* Google Sign Up */}
           <button
             type="button"
+            onClick={() =>
+              authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/auth/signin",
+              })
+            }
             className="w-full mb-3 flex items-center justify-center gap-3 border border-border-default rounded-xl py-2.5 text-sm font-medium text-text-primary bg-section hover:bg-elevated-card transition-colors cursor-pointer"
           >
             <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
