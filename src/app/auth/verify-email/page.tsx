@@ -168,8 +168,8 @@ const VerifyEmail = () => {
                 <div className="w-full rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 flex items-center gap-3">
                   <MailCheck className="h-5 w-5 text-green-500 shrink-0" />
                   <p className="text-[13px] text-green-600 dark:text-green-400 font-medium text-left">
-                    If your email was verified successfully, You can now signin
-                    or return to home page.
+                    Your email was verified successfully, You can now signin or
+                    return to home page.
                   </p>
                 </div>
               ) : (

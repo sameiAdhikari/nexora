@@ -25,7 +25,10 @@ const InputField = <T extends FieldValues>({
 }) => {
   return (
     <div>
-      <label className="block capitalize text-sm font-medium text-text-secondary mb-1">
+      <label
+        htmlFor={name}
+        className="block capitalize text-sm font-medium text-text-secondary mb-1"
+      >
         {label}
         {optional && (
           <span className="font-normal text-text-muted">(optional)</span>
@@ -38,14 +41,15 @@ const InputField = <T extends FieldValues>({
           />
         )}
         <input
+          id={name}
           type={type ? type : "text"}
           placeholder={placeholder}
-          className={`w-full h-10 px-3.5 pl-10 py-2.5 rounded-xl border bg-elevated-card text-text-primary text-sm box-border placeholder:text-placeholder hover:border-primary-hover  ${error ? "border-danger" : "border-border-default  "} focus:outline-none focus:border-border-brand focus:border-2 transition-colors`}
+          className={`w-full h-10 px-3.5 pl-10 py-2.5 rounded-xl border bg-elevated-card text-text-primary text-sm box-border placeholder:text-placeholder hover:border-primary-hover  ${error ? "border-danger" : "border-border-strong  "} focus:outline-none focus:border-border-brand focus:border-2 transition-colors`}
           {...register(name)}
         />
         {RightIcon && (
           <RightIcon
-            className={`absolute top-1/2 transform -translate-y-1/2 right-4.5 h-4 w-4 ${error && !optional ? "text-danger group-focus-within:text-primary group-hover:text-primary" : "text-text-muted group-focus-within:text-primary"}`}
+            className={`absolute top-1/2 transform -translate-y-1/2 right-4.5 h-4 w-4 cursor-pointer ${error && !optional ? "text-danger group-focus-within:text-primary group-hover:text-primary" : "text-text-muted group-focus-within:text-primary"}`}
             onClick={onRightIconClick}
           />
         )}

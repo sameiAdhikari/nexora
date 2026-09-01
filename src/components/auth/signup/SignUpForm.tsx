@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "react-toastify";
+import { findOutExistingUser } from "@/lib/actions";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -45,6 +46,13 @@ const SignUpForm = () => {
   const handleFormSubmit = async (formdata: signupSchemaType) => {
     setIsLoading(true);
     try {
+      const user = await findOutExistingUser(formdata.email);
+      if (user.message === "EMAIL_IS_VERIFIED") {
+        setIsLoading(false);
+        return toast.error(
+          "you already have an account with us or your email is already verified. Please signIn or continue with google.",
+        );
+      }
       const { error, data: returnUser } = await authClient.signUp.email({
         email: formdata.email,
         password: formdata.password,
@@ -54,14 +62,6 @@ const SignUpForm = () => {
         callbackURL: "/auth/signin", // Specify the callback URL after email verification
       });
       if (error) {
-        // this is not going to work because better auth doesn't return an error for existing user.
-        // if (error?.message?.includes("already exists")) {
-        //   setIsLoading(false);
-        //   return toast.error(
-        //     "If an account can be created with this email, it's processed. Please login.",
-        //   );
-        // }
-
         toast.error(error.message || "An error occurred during signup.");
         setIsLoading(false);
         return;
@@ -81,8 +81,8 @@ const SignUpForm = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-start pr-30 overflow-y-scroll py-8 ">
-        <div className=" max-w-130 min-w-130">
+      <div className=" flex flex-col items-center justify-start pr-30 overflow-y-scroll py-8 pt-27 ">
+        <div className=" max-w-110 min-w-110">
           {/* Header */}
           <div className="mb-5 text-center">
             <h1 className="text-2xl font-bold text-heading">
@@ -197,7 +197,7 @@ const SignUpForm = () => {
                     }   rounded-xl px-3 py-2 `}
                   >
                     <Checkbox
-                      className="h-5 w-5 border-border-strong"
+                      className="h-4 w-4 border-border-strong"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       aria-invalid={fieldState.invalid}

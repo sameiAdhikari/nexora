@@ -1,19 +1,27 @@
 import { features, stats } from "@/const/signup.constant";
+import { ShieldCheck } from "lucide-react";
 
 const SignUpLeftPanel = () => {
   return (
     <aside className="relative flex flex-col max-h-screen justify-between  py-10 pl-50 ">
       {/* Hero copy */}
-      <div className="relative w-full z-10 space-y-6 mt-20">
+      <div className="relative w-full z-10 space-y-4 mt-20">
+        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border-subtle bg-section px-3 py-1 text-xs font-medium text-primary tracking-wider">
+          <ShieldCheck className="h-4 w-4" />
+          Invest with clarity
+        </div>
         <div>
           <h2 className="text-4xl font-bold text-heading leading-tight">
-            The next generation
+            The next generation of
             <br />
-            of investing.
+            investing.
           </h2>
-          <p className="mt-3 text-text-secondary text-base max-w-120">
-            Real-time data, lightning execution, and a portfolio built for the
-            future.
+          <p className="mt-3 text-text-secondary text-base max-w-140">
+            {/* Real-time data, lightning execution, and a portfolio built for the
+            future.  */}
+            Build your portfolio with powerful market insights, real-time data,
+            and an investing experience designed to keep you informed and in
+            control.
           </p>
         </div>
 
