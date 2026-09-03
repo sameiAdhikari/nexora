@@ -46,6 +46,7 @@ const SignUpForm = () => {
   const handleFormSubmit = async (formdata: signupSchemaType) => {
     setIsLoading(true);
     try {
+      if (isLoading) return; // Prevent multiple submissions
       const user = await findOutExistingUser(formdata.email);
       if (user.message === "EMAIL_IS_VERIFIED") {
         setIsLoading(false);
@@ -79,6 +80,18 @@ const SignUpForm = () => {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/auth/signin",
+      });
+    } catch (error) {
+      toast.error("An unexpected error occurred during Google sign-up.");
+      console.error("Google sign-up error:", error);
+    }
+  };
+
   return (
     <>
       <div className=" flex flex-col items-center justify-start pr-30 overflow-y-scroll py-8 pt-27 ">
@@ -96,12 +109,7 @@ const SignUpForm = () => {
           {/* Google Sign Up */}
           <button
             type="button"
-            onClick={() =>
-              authClient.signIn.social({
-                provider: "google",
-                callbackURL: "/auth/signin",
-              })
-            }
+            onClick={handleGoogleSignUp}
             className="w-full mb-3 flex items-center justify-center gap-3 border border-border-default rounded-xl py-2.5 text-sm font-medium text-text-primary bg-section hover:bg-elevated-card transition-colors cursor-pointer"
           >
             <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
