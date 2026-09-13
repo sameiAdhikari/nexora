@@ -9,7 +9,8 @@ const AuthHeader = () => {
       {/* Logo */}
       <Link href={"/"}>
         <Image
-          src="/logo-2.png"
+          // src="/logo-2.png"
+          src="/logo22.png"
           alt="Nexora"
           width={150}
           height={150}

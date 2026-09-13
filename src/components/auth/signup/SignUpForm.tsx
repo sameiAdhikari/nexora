@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
@@ -8,7 +8,7 @@ import { Eye, EyeOff, LockKeyhole, ShieldCheck, User } from "lucide-react";
 
 import authClient from "@/lib/auth-client";
 import Divider from "@/components/common/Divider";
-import InputField from "@/components/auth/signup/InputField";
+import InputField from "@/components/common/InputField";
 import { SpinnerCircle } from "@/components/common/spinner";
 import PasswordStrengthBar from "@/components/auth/signup/PasswordStrengthBar";
 import { signupSchema, signupSchemaType } from "@/zod/auth/signup.zodSchema";
@@ -17,7 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "react-toastify";
-import { findOutExistingUser } from "@/lib/actions";
+import { findOutExistingUser, resendVerificationEmail } from "@/lib/actions";
+import GoogleLogo from "@/components/common/GoogleLogo";
+import FullPageSpinner from "@/components/common/FullPageSpinner";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -30,6 +32,7 @@ const SignUpForm = () => {
     handleSubmit,
     control,
     watch,
+    reset,
   } = useForm<signupSchemaType>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -43,17 +46,40 @@ const SignUpForm = () => {
     mode: "onChange",
   });
 
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
   const handleFormSubmit = async (formdata: signupSchemaType) => {
+    if (isLoading) return; // Prevent multiple submissions
     setIsLoading(true);
     try {
-      if (isLoading) return; // Prevent multiple submissions
       const user = await findOutExistingUser(formdata.email);
+
+      // If the user exists and the email is verified, we can show an error message or redirect them to the sign-in page.
       if (user.message === "EMAIL_IS_VERIFIED") {
         setIsLoading(false);
+        reset();
         return toast.error(
-          "you already have an account with us or your email is already verified. Please signIn or continue with google.",
+          "We couldn't complete your sign-up. Try sign in or continue with Google",
         );
       }
+
+      // If the email is not verified, we can proceed to send a verification email or handle the signup process accordingly.
+      if (user.message === "EMAIL_IS_NOT_VERIFIED") {
+        setIsLoading(false);
+        reset();
+        const resendResponse = await resendVerificationEmail(formdata.email);
+        if (resendResponse.message === "SEND_EMAIL_VERIFICATION_LINK") {
+          router.push(
+            `/auth/verify-email?email=${encodeURIComponent(formdata.email)}`,
+          );
+        }
+        return toast.error(
+          "Your email is not verified. Please check your inbox for the verification email or request a new one.",
+        );
+      }
+      // If the user does not exist, we can proceed with the signup process.
       const { error, data: returnUser } = await authClient.signUp.email({
         email: formdata.email,
         password: formdata.password,
@@ -67,12 +93,12 @@ const SignUpForm = () => {
         setIsLoading(false);
         return;
       }
-      // encodeURIComponent() is a function that takes a value and convet it into valid url. because in url there is some character which has special meaning so it'n use as a string.this function will replace it with %number example.Space → %20 &, → %26, = → %3D ,? → %3F, # → %23, % → %25
 
       router.push(
         `/auth/verify-email?email=${encodeURIComponent(returnUser.user.email)}`,
       );
       setIsLoading(false);
+      reset();
       //eslint-disable-next-line
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
@@ -81,21 +107,26 @@ const SignUpForm = () => {
   };
 
   const handleGoogleSignUp = async () => {
+    if (isLoading) return; // Prevent multiple submissions
+    setIsLoading(true);
     try {
-      await authClient.signIn.social({
+      const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/auth/signin",
+        callbackURL: "/dashboard",
       });
-    } catch (error) {
-      toast.error("An unexpected error occurred during Google sign-up.");
-      console.error("Google sign-up error:", error);
+      if (error) toast.error("Google sign-up failed. Please try again.");
+    } catch {
+      return toast.error("An unexpected error occurred during Google sign-up.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      <div className=" flex flex-col items-center justify-start pr-30 overflow-y-scroll py-8 pt-27 ">
-        <div className=" max-w-110 min-w-110">
+      {isLoading && <FullPageSpinner />}
+      <div className=" flex flex-col items-center justify-start pr-30  py-8 pt-27 ">
+        <div className=" max-w-md min-w-md">
           {/* Header */}
           <div className="mb-5 text-center">
             <h1 className="text-2xl font-bold text-heading">
@@ -107,31 +138,14 @@ const SignUpForm = () => {
           </div>
 
           {/* Google Sign Up */}
-          <button
+          <Button
             type="button"
             onClick={handleGoogleSignUp}
             className="w-full mb-3 flex items-center justify-center gap-3 border border-border-default rounded-xl py-2.5 text-sm font-medium text-text-primary bg-section hover:bg-elevated-card transition-colors cursor-pointer"
           >
-            <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
-              <path
-                d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"
-                fill="#FFC107"
-              />
-              <path
-                d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 5.1 29.6 3 24 3c-7.6 0-14.2 4.3-17.7 11.7z"
-                fill="#FF3D00"
-              />
-              <path
-                d="M24 45c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.6 36.1 27 37 24 37c-6 0-10.6-3.1-11.8-7.5l-7 5.4C8.1 40.8 15.5 45 24 45z"
-                fill="#4CAF50"
-              />
-              <path
-                d="M44.5 20H24v8.5h11.8c-.6 2.8-2.3 5.1-4.7 6.6l6.6 5.4C41.8 37.1 45 31 45 24c0-1.3-.2-2.7-.5-4z"
-                fill="#1976D2"
-              />
-            </svg>
+            <GoogleLogo />
             Continue with Google
-          </button>
+          </Button>
 
           <Divider>or sign up with email</Divider>
 
@@ -151,6 +165,7 @@ const SignUpForm = () => {
             <InputField
               label="Email Address"
               name="email"
+              type="email"
               placeholder="example123@gmail.com"
               register={register}
               error={errors?.email?.message}
@@ -205,12 +220,12 @@ const SignUpForm = () => {
                     }   rounded-xl px-3 py-2 `}
                   >
                     <Checkbox
-                      className="h-4 w-4 border-border-strong"
+                      className="h-4 w-4 border-border-strong cursor-pointer"
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       aria-invalid={fieldState.invalid}
                     />
-                    <FieldLabel className="inline-block text-xs">
+                    <FieldLabel className="inline-block text-[12px]">
                       By signing up, you agree to our{" "}
                       <Link
                         href="/terms"

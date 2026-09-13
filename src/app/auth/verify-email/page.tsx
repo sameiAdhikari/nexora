@@ -1,14 +1,13 @@
 "use client";
 
 import { ArrowLeft, Home, MailCheck, ShieldUser } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import AuthHeader from "@/components/auth/AuthHeader";
 import Divider from "@/components/common/Divider";
 import { SpinnerCircle, SpinnerLoader } from "@/components/common/spinner";
-import { ThemeToggler } from "@/components/common/ThemeToggler";
 import { appName, resendEmailTimerInSecond } from "@/const/constant";
 import { findOutExistingUser, resendVerificationEmail } from "@/lib/actions";
 import { formateHideEmail } from "@/lib/utils";
@@ -32,9 +31,9 @@ const VerifyEmail = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       if (resendTimer <= 0) return clearInterval(timer);
-      setResendTimer((prev) => {
-        if (prev > 1) {
-          return prev - 1;
+      setResendTimer((prevCountDown) => {
+        if (prevCountDown > 1) {
+          return prevCountDown - 1;
         } else {
           clearInterval(timer);
           return 0;
@@ -114,7 +113,8 @@ const VerifyEmail = () => {
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-100 w-100 rounded-full bg-nexora-green-orb blur-3xl" />
 
       {/* Header */}
-      <header className="flex items-center justify-between px-13 z-20 bg-surface border-b border-border-default backdrop-blur-md h-16 shrink-0">
+      <AuthHeader />
+      {/* <header className="flex items-center justify-between px-13 z-20 bg-surface border-b border-border-default backdrop-blur-md h-16 shrink-0">
         <Image
           src="/logo-2.png"
           alt="Nexora"
@@ -124,7 +124,7 @@ const VerifyEmail = () => {
           loading="lazy"
         />
         <ThemeToggler />
-      </header>
+      </header> */}
 
       {/* Main */}
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-9">

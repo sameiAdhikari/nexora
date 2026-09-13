@@ -11,16 +11,18 @@ export const ThemeToggler = () => {
   const dispatch = useDispatch();
   const isDark = useSelector((store: RootState) => store.theme.isDarkMode);
 
-  useEffect(() => {
-    const lightMode = window.matchMedia(
-      "(prefers-color-scheme: light)",
-    ).matches;
-    if (lightMode) {
-      dispatch(toggleTheme(false));
-    } else {
-      dispatch(toggleTheme(true));
-    }
-  }, [dispatch]);
+  // this use effect add a prefer color scheme of the use on each page during changing the route. this reset the color mode on each page. if you change the theme and change the page that will reset the theme to prefer color.
+
+  // useEffect(() => {
+  //   const lightMode = window.matchMedia(
+  //     "(prefers-color-scheme: light)",
+  //   ).matches;
+  //   if (lightMode) {
+  //     dispatch(toggleTheme(false));
+  //   } else {
+  //     dispatch(toggleTheme(true));
+  //   }
+  // }, [dispatch]);
   return (
     <button className="relative flex items-center w-20 h-9 px-1 overflow-hidden rounded-full bg-slate-200 border border-border-default  cursor-pointer transition-colors">
       {/* track icons */}

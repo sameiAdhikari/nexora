@@ -12,20 +12,17 @@ ex dark:text-red-500
   --primary-active: #2818b8;
   --primary-light: #eef0ff;
 
-  /* Background */
-  /* --background: #f8fafc; */
   --surface: #ffffff;
   --elevated-card: #ffffff;
   --section: #f4f6fb;
-  --divider: #e5e7eb;
+  --divider: #c9cfd9;
 
   /* Text */
   --text-primary: #1f2937;
   --text-primary-dark: #111827;
   --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-
-  /* Border */
+  /* --text-muted: #6b7280; */
+  --text-muted: #94a3b8;
   --border-subtle: #e5e7eb;
   --border-default: #d1d5db;
   --border-strong: #9ca3af;
@@ -107,12 +104,10 @@ ex dark:text-red-500
   --primary-active: #2818b8;
   --primary-light: #eef0ff;
 
-  /* Background */
-
   --surface: #18181b;
   --elevated-card: #27272a;
   --section: #1f1f23;
-  --divider: #3f3f46;
+  --divider: #6d6d72;
 
   /* Text */
   --text-primary: #f4f4f5;
@@ -344,3 +339,21 @@ body {
       #09090b;
   }
 }
+
+/* @media screen and (max-width: 768px) {
+  .info-cards {
+    flex-direction: column;
+  }
+} */
+/* @media only screen and (max-width: 600px) {
+  .info-card {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 10px !important;
+  }
+
+  .info-card-spacer {
+    display: none !important;
+  }
+} */

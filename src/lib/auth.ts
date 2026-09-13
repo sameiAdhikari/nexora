@@ -5,6 +5,7 @@ import { Resend } from "resend";
 import { render } from "@react-email/render";
 import VerificationEmailTemplate from "@/components/template/VerificationEmailTemplate";
 import SignupAttemptNotificationEmail from "@/components/template/SignupAttemptNotificationEmail";
+import PasswordResetTemplate from "@/components/template/PasswordResetTemplate";
 
 const db = await connectDb();
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -25,7 +26,7 @@ export const auth = betterAuth({
       // const attemptLocation = `${data.city}, ${data.region}, ${data.country_name}`;
       const attemptedLocation = ""; // right now we are just using empty but in future we can replace it with actual login attempted user location.
 
-      const loginUrl = `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/auth/signin`;
+      const loginUrl = `${process.env.BETTER_AUTH_URL}/auth/signin`;
       const userAgent = request?.headers?.get("user-agent") || "";
       const attemptedTime = new Date().toLocaleString("en-NP", {
         timeZone: "Asia/Kathmandu",
@@ -50,6 +51,21 @@ export const auth = betterAuth({
             attemptedLocation,
             userAgent,
             loginUrl,
+          }),
+        ),
+      });
+    },
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url, token }, request) => {
+      await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: user.email,
+        subject: "Reset your Nexora password",
+        html: await render(
+          PasswordResetTemplate({
+            name: user.name,
+            url,
+            expiresInHours: 1,
           }),
         ),
       });
