@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nexora — Premium Investment Platform
 
-## Getting Started
+A componentized Next.js implementation of the Nexora investment landing page. The project preserves the complete premium light/dark design while keeping all content, interactions, dummy portfolio data, and future backend integration points easy to maintain.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js App Router with TypeScript
+- Tailwind CSS 4
+- Shadcn UI primitives
+- Redux Toolkit and React Redux
+- Lucide React and React Icons
+- Responsive light and dark themes
+- Cloudflare/Vinext production runtime for the hosted Site
+
+## Included functionality
+
+- Responsive animated navigation
+- Persistent light/dark theme with `localStorage`
+- `Alt + T` keyboard theme shortcut
+- Animated hero and portfolio dashboard mockup
+- Responsive bento feature section
+- Redux-powered market category filters
+- Scroll-reveal animations and reading progress indicator
+- Insights, benefits, security, learning, CTA, and footer sections
+- Accessible Shadcn account placeholder dialog
+- Typed dummy market, holding, insight, and learning data
+
+All displayed investment values are illustrative. Connect your own backend, authentication, and market-data provider before using the project as a real investment application.
+
+## Project structure
+
+```text
+app/
+  layout.tsx                 Root metadata, fonts, and Redux provider
+  page.tsx                   Small route entry point
+  globals.css                Tailwind, Shadcn tokens, themes, and animation system
+
+components/
+  home/
+    home-page.tsx            Client-side page orchestration and shared effects
+    header.tsx
+    hero.tsx
+    trust-marquee.tsx
+    features.tsx
+    portfolio-showcase.tsx
+    markets.tsx
+    insights.tsx
+    why-nexora.tsx
+    security.tsx
+    learning.tsx
+    final-cta.tsx
+    footer.tsx
+    account-dialog.tsx
+  nexora/
+    brand.tsx                Nexora and company marks
+    charts.tsx               Reusable SVG chart visuals
+  ui/                        Shadcn UI components
+
+lib/
+  features/ui/ui-slice.ts    Typed Redux UI state
+  hooks.ts                   Typed Redux hooks
+  nexora-data.ts             Typed demo content and market datasets
+  store.ts                   Redux store configuration
+
+public/assets/               Hero, insight, security, education, and CTA artwork
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Requirements: Node.js 22.13 or newer.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Open the local URL shown in the terminal.
 
-To learn more about Next.js, take a look at the following resources:
+## Production checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx tsc --noEmit
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Connect your backend later
 
-## Deploy on Vercel
+The best starting points are:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Replace the data in `lib/nexora-data.ts` with API or server-component data.
+- Replace `AccountDialog` with your Better Auth sign-in/sign-up routes.
+- Move real portfolio and market state into dedicated Redux or TanStack Query features.
+- Keep secrets and private API credentials server-side; never place them in client components.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Hosted preview
+
+The owner-private hosted version is available at:
+
+<https://nexora-invest.khadkan73.chatgpt.site>
